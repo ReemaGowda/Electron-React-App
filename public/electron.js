@@ -2,7 +2,9 @@ const { app, BrowserWindow } = require('electron')
 const path = require("path")
 const isDev = require("electron-is-dev")
 
-// let win 
+let win 
+
+let imageWindow
 
 function createWindow () {
   // Create the browser window.
@@ -13,11 +15,35 @@ function createWindow () {
       nodeIntegration: true
     }
   })
+  
+  //Create the image window
+  imageWindow = new BrowserWindow({
+    width: 600,
+    height: 680,
+    frame: true,
+    parent: mainWindow, show: false,
+    nodeIntegration: true,
+    
+  });
 
   // and load the index.html of the app.
     win.loadURL(
         isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`
     )
+  
+  imageWindow.loadURL(
+    isDev
+      ? "http://localhost:3000/image"
+      : `file://${path.join(__dirname, "../build/index.html")}`
+  );
+  
+   imageWindow.on("close", (e) => {
+    e.preventDefault();
+    imageWindow.hide();
+  });
+
+
+  mainWindow.webContents.openDevTools();
 
   // Open the DevTools.
  // win.webContents.openDevTools()
@@ -47,3 +73,11 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+
+ipcMain.on('toggle-image', (event, arg) => {
+  imageWindow.show();
+})
+
+
+
